@@ -169,3 +169,23 @@ export const deleteBrand = async (req, res, next) => {
     message: "brand deleted successfully",
   });
 };
+
+export const getspecificBrands = async (req, res, next) => {
+  const { subCategoryId , name, categoryId  } = req.query;
+  const queryFilter = {};
+
+  // check if the query params are present
+  if (subCategoryId) queryFilter.subCategoryId = subCategoryId;
+  if (name) queryFilter.name = name;
+  if (categoryId) queryFilter.categoryId = categoryId;
+
+  // find the brands
+ const brands = await Brand.find(queryFilter);
+
+ if (!brands) {
+  return next(new ErrorClass("brand not found", 404, "brand not found"));
+}
+
+  res.status(200).json({data:brands});
+};
+

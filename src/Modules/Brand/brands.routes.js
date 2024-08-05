@@ -25,4 +25,5 @@ brandRouter.put(
 
 brandRouter.delete("/delete/:_id", errorHandler(controller.deleteBrand));
 
+brandRouter.get("/getspecificBrands", errorHandler(controller.getspecificBrands));
 export { brandRouter };

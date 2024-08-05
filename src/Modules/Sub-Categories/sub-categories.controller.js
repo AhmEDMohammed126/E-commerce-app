@@ -170,3 +170,18 @@ export const deleteSubCategory = async (req, res, next) => {
     message: "SubCategory deleted successfully",
   });
 };
+
+export const allSubCategoriesWithBrands=async(req,res,nest)=>{
+  const data=await SubCategory.aggregate([
+    {
+      $lookup: {
+        from: "brands",
+        localField: "_id",
+        foreignField: "subCategoryId",
+        as: "brands",
+      },
+    },
+  ]);
+
+  res.status(200).json(data)
+} 

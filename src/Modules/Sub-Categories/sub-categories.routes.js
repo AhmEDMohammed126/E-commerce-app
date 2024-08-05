@@ -32,4 +32,6 @@ subCategoryRouter.delete(
   errorHandler(controller.deleteSubCategory)
 );
 
+subCategoryRouter.get("/allSubCategoriesWithBrands", errorHandler(controller.allSubCategoriesWithBrands));
+
 export { subCategoryRouter };
