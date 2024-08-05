@@ -183,5 +183,11 @@ export const allSubCategoriesWithBrands=async(req,res,nest)=>{
     },
   ]);
 
+  if (!data) {
+    return next(
+      new ErrorClass("Category not found", 404, "Category not found")
+    );
+  }
+
   res.status(200).json(data)
 } 
