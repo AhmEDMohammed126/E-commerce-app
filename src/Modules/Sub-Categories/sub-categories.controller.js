@@ -188,6 +188,6 @@ export const allSubCategoriesWithBrands=async(req,res,nest)=>{
       new ErrorClass("Category not found", 404, "Category not found")
     );
   }
-
+//return data
   res.status(200).json(data)
 } 
