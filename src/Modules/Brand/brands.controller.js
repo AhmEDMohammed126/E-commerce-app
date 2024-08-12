@@ -1,7 +1,7 @@
 import slugify from "slugify";
 import { nanoid } from "nanoid";
 // models
-import { SubCategory, Brand } from "../../../DB/Models/index.js";
+import { SubCategory, Brand, Product } from "../../../DB/Models/index.js";
 // uitls
 import { cloudinaryConfig, ErrorClass, uploadFile } from "../../Utils/index.js";
 
@@ -66,9 +66,9 @@ export const createBrand = async (req, res, next) => {
 };
 
 /**
- * @api {GET} /sub-categories Get category by name or id or slug
+ * @api {GET} /brands/getrBrand Get brand by name or id or slug
  */
-export const getBrands = async (req, res, next) => {
+export const getBrand = async (req, res, next) => {
   const { id, name, slug } = req.query;
   const queryFilter = {};
 
@@ -78,7 +78,7 @@ export const getBrands = async (req, res, next) => {
   if (slug) queryFilter.slug = slug;
 
   // find the category
-  const brand = await Brand.findOne(queryFilter);
+  const brand = await Brand.findOne(queryFilter)
 
   if (!brand) {
     return next(new ErrorClass("brand not found", 404, "brand not found"));
@@ -142,13 +142,13 @@ export const updatebrand = async (req, res, next) => {
   });
 };
 /**
- * @api {DELETE} /sub-categories/delete/:_id  Delete a category
+ * @api {DELETE} /brands/deleteBrand/:_id  Delete a category
  */
 export const deleteBrand = async (req, res, next) => {
-  // get the sub-category id
+  // get the brand id
   const { _id } = req.params;
 
-  // find the sub-category by id
+  // find the brand by id
   const brand = await Brand.findByIdAndDelete(_id)
     .populate("categoryId")
     .populate("subCategoryId");
@@ -161,17 +161,28 @@ export const deleteBrand = async (req, res, next) => {
   await cloudinaryConfig().api.delete_folder(brandPath);
 
   // delete the related product from db
-  /**
-   * @todo  delete the related products from db
-   */
+  const product = await Product.findAndDelete({brandId:brand._id})
   res.status(200).json({
     status: "success",
     message: "brand deleted successfully",
   });
 };
 
+/**
+ * @api {GET} /brands/getAllBrands Get brands
+ */
+export const getAllBrands = async (req, res, next) => {
+  const {page=1,limit=3}=req.query
+  const skip=(page-1)*limit
+  const data=await Brand.find().limit(+limit).skip(skip)
+  return res.status(200).json({data})
+}
+/**
+ * @api {GET} /brands/getspecificBrands  get a brands for a specific category or sub-category
+ */
 export const getspecificBrands = async (req, res, next) => {
-  const { subCategoryId , name, categoryId  } = req.query;
+  const { subCategoryId , name, categoryId,page=1,limit=3 } = req.query;
+  const skip=(page-1)*limit
   const queryFilter = {};
 
   // check if the query params are present
@@ -180,12 +191,51 @@ export const getspecificBrands = async (req, res, next) => {
   if (categoryId) queryFilter.categoryId = categoryId;
 
   // find the brands
- const brands = await Brand.find(queryFilter);
+  const brands = await Brand.find(queryFilter).limit(+limit).skip(skip);
 
- if (!brands) {
-  return next(new ErrorClass("brand not found", 404, "brand not found"));
+  if (!brands) {
+    return next(new ErrorClass("brand not found", 404, "brand not found"));
 }
 
   res.status(200).json({data:brands});
 };
 
+/**
+ * Get brands with their associated products
+ * @api {Get} /brands/getBrandsWithProducts  get a brands and their associated products
+ * @param {Object} req - The request object
+ * @param {Object} res - The response object
+ * @param {Function} next - The next function
+ * 
+ * @returns {Object} - The response object with the brands data
+ * 
+ */
+
+export const  getBrandsWithProducts=async(req,res,next)=>{
+  const {page=1,limit=3}=req.query
+  const skip=(page-1)*limit
+  const data = await Brand.aggregate([
+    {
+      $lookup: {
+        from: "products",            
+        localField: "_id",           
+        foreignField: "brandId",     
+        as: "products"               
+      }
+    },
+    {
+      $skip: skip                   
+    },
+    {
+      $limit: parseInt(limit)
+    }
+  ])
+  if(!data.length) {
+    return next(
+      new ErrorClass("brands not found", 404, "brands not found")
+    ) 
+  }
+
+  // Perform aggregation to get brands with their associated products
+  res.status(200).json(data)
+}

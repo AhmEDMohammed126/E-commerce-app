@@ -58,6 +58,22 @@ export const createCategory = async (req, res, next) => {
 /**
  * @api {GET} /categories Get category by name or id or slug
  */
+//get categories paginated
+export const getCategories = async (req, res, next) => {
+  const { page=1, limit=4 } = req.query;
+  const skip = (page - 1) * limit;
+
+  const data = await Category.find().limit(+limit).skip(skip);
+
+  if (!data) {
+    return next(new ErrorClass("Category not found", 404, "Category not found"));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data
+  })
+}
 export const getCategory = async (req, res, next) => {
   const { id, name, slug } = req.query;
   const queryFilter = {};
@@ -169,7 +185,8 @@ export const deleteCategory = async (req, res, next) => {
 };
 
 export const  allCategoriesWithSubcatgories=async(req,res,next)=>{
-  
+  const {page=1,limit=3}=req.query
+  const skip=(page-1)*limit
   const data=await Category.aggregate([
     {
       $lookup: {
@@ -179,7 +196,7 @@ export const  allCategoriesWithSubcatgories=async(req,res,next)=>{
         as: "subcategories",
       },
     },
-  ]);
+  ]).limit(+limit).skip(skip);
 
   if(!data){
     return next(
