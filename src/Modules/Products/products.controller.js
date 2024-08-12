@@ -2,6 +2,7 @@ import { Brand, Product } from "../../../DB/Models/index.js";
 import { calculateProductPrice, cloudinaryConfig, ErrorClass, uploadFile } from "../../Utils/index.js";
 import slugify from "slugify";
 import { nanoid } from "nanoid";
+import { ApiFeatures } from "../../Utils/index.js";
 
 /**
  * @api {post} /products/create
@@ -115,17 +116,15 @@ export const updateProduct=async(req,res,next)=>{
  * @api {get} /products/ 
  */
 export const listProducts=async(req,res,next)=>{
-    const {page=1,limit=2}=req.query;
+    const {page=1,limit=2,...filters}=req.query;
     const{brandId}=req.params;
-    const skip=(page-1)*limit;
-    const queryFilter={};
-    if(brandId) queryFilter.brandId=brandId;
-    const products=await Product.paginate(queryFilter,//the first object to filter products
-        {
-            page,
-            limit,
-            skip,
-        })
+    if(brandId) req.query.brandId=brandId;
+    const model = Product
+    const ApiFeaturesInstance = new ApiFeatures(model,req.query).
+    pagination().
+    filter().
+    sort();
+    const products=await ApiFeaturesInstance.mongooseQuery;
     return res.status(200).json({products})
 }
 
