@@ -172,6 +172,8 @@ export const deleteSubCategory = async (req, res, next) => {
 };
 
 export const allSubCategoriesWithBrands=async(req,res,nest)=>{
+  const{page=1,limit=3}=req.query
+  const skip=(page-1)*limit
   const data=await SubCategory.aggregate([
     {
       $lookup: {
@@ -181,13 +183,21 @@ export const allSubCategoriesWithBrands=async(req,res,nest)=>{
         as: "brands",
       },
     },
-  ]);
+  ]).limit(+limit).skip(skip);
 
   if (!data) {
     return next(
       new ErrorClass("Category not found", 404, "Category not found")
     );
   }
-
+//return data
   res.status(200).json(data)
 } 
+
+//get all subcategories with pagination
+export const allSubCategories=async(req,res,next)=>{
+  const {page=1,limit=3}=req.query
+  const skip=(page-1)*limit
+  const data=await SubCategory.find().limit(+limit).skip(skip)
+  return res.status(200).json({data})
+}

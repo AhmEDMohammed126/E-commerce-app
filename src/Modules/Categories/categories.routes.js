@@ -21,7 +21,9 @@ categoryRouter.post(
   errorHandler(controller.createCategory)
 );
 
-categoryRouter.get("/", errorHandler(controller.getCategory));
+categoryRouter.get("/", errorHandler(controller.getCategories));
+
+categoryRouter.get("/getCategory", errorHandler(controller.getCategory));
 
 categoryRouter.get("/allCategoriesWithSubcatgories", errorHandler(controller.allCategoriesWithSubcatgories));
 

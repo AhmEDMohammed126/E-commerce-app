@@ -18,7 +18,9 @@ subCategoryRouter.post(
   errorHandler(controller.createSubCategory)
 );
 
-subCategoryRouter.get("/", errorHandler(controller.getSubCategory));
+subCategoryRouter.get("/getSubCategory", errorHandler(controller.getSubCategory));
+
+subCategoryRouter.get("/", errorHandler(controller.allSubCategories));
 
 subCategoryRouter.put(
   "/update/:_id",

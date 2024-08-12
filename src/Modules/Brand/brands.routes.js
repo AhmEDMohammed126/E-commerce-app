@@ -1,13 +1,16 @@
-import { Router } from "express";
+import {  Router } from "express";
 // controllers
 import * as controller from "./brands.controller.js";
 // middlewares
 import * as Middlewares from "../../Middlewares/index.js";
 // utils
 import { extensions } from "../../Utils/index.js";
+import { productRouter } from "../Products/products.routes.js";
 
 const brandRouter = Router();
 const { errorHandler, multerHost } = Middlewares;
+
+brandRouter.use("/:brandId/products",productRouter)
 
 brandRouter.post(
   "/create",
@@ -15,7 +18,11 @@ brandRouter.post(
   errorHandler(controller.createBrand)
 );
 
-brandRouter.get("/", errorHandler(controller.getBrands));
+
+brandRouter.get("/", errorHandler(controller.getAllBrands));
+
+brandRouter.get("/getBrand", errorHandler(controller.getBrand));
+brandRouter.get("/getBrandsWithProducts", errorHandler(controller.getBrandsWithProducts));
 
 brandRouter.put(
   "/update/:_id",
