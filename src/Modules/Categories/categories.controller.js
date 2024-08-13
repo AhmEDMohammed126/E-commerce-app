@@ -2,7 +2,7 @@ import slugify from "slugify";
 import { nanoid } from "nanoid";
 // utils
 import { ErrorClass } from "../../Utils/error-class.utils.js";
-import { cloudinaryConfig, uploadFile } from "../../Utils/index.js";
+import { ApiFeatures, cloudinaryConfig, uploadFile } from "../../Utils/index.js";
 // models
 import { Brand, Category, SubCategory } from "../../../DB/Models/index.js";
 
@@ -60,10 +60,13 @@ export const createCategory = async (req, res, next) => {
  */
 //get categories paginated
 export const getCategories = async (req, res, next) => {
-  const { page=1, limit=4 } = req.query;
-  const skip = (page - 1) * limit;
-
-  const data = await Category.find().limit(+limit).skip(skip);
+    const {page=1,limit=2,...filters}=req.query;
+    const model = Category
+    const ApiFeaturesInstance = new ApiFeatures(model,req.query).
+    pagination().
+    filter().
+    sort();
+    const data=await ApiFeaturesInstance.mongooseQuery;
 
   if (!data) {
     return next(new ErrorClass("Category not found", 404, "Category not found"));
