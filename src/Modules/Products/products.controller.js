@@ -72,7 +72,8 @@ export const updateProduct=async(req,res,next)=>{
     //productId from params
     const {productId}=req.params
     //find the product by id
-    const product=await Product.findById(productId).populate([{path:'categoryId',select:'customId'},{path:'subCategoryId',select:'customId'},{path:'brandId',select:'customId'}]);
+    const product=await Product.findById(productId).
+    populate([{path:'categoryId',select:'customId'},{path:'subCategoryId',select:'customId'},{path:'brandId',select:'customId'}]);
     if(!product) return next(new ErrorClass('Product not found',404,'Product not found'))
     //destructing the request body
     const{title,overview,specs,price,discountAmount,discountType,stock,badge}=req.body
@@ -121,9 +122,9 @@ export const listProducts=async(req,res,next)=>{
     if(brandId) req.query.brandId=brandId;
     const model = Product
     const ApiFeaturesInstance = new ApiFeatures(model,req.query).
-    pagination().
-    filter().
-    sort();
+    pagination()
+    .filter()
+    .sort();
     const products=await ApiFeaturesInstance.mongooseQuery;
     return res.status(200).json({products})
 }

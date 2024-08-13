@@ -71,7 +71,7 @@ export const getBrand = async (req, res, next) => {
   if (name) queryFilter.name = name;
   if (slug) queryFilter.slug = slug;
 
-  // find the category
+  // find the brand
   const brand = await Brand.findOne(queryFilter)
 
   if (!brand) {
@@ -86,16 +86,16 @@ export const getBrand = async (req, res, next) => {
 };
 
 /**
- * @api {PUT} /sub-categories/update/:_id  Update a category
+ * @api {PUT} /brands/update/:_id  Update a category
  */
 export const updatebrand = async (req, res, next) => {
-  // get the sub-category id
+  // get the brand id
   const { _id } = req.params;
 
   // destructuring the request body
   const { name } = req.body;
 
-  // find the sub-category by id
+  // find the brand by id
   const brand = await Brand.findById(_id)
     .populate("categoryId")
     .populate("subCategoryId");
@@ -108,7 +108,6 @@ export const updatebrand = async (req, res, next) => {
   // Update name and slug
   if (name) {
     const slug = slugify(name, {
-      replacement: "_",
       lower: true,
     });
     brand.name = name;
@@ -126,7 +125,7 @@ export const updatebrand = async (req, res, next) => {
     brand.logo.secure_url = secure_url;
   }
 
-  // save the sub category with the new changes
+  // save the brand with the new changes
   await brand.save();
 
   res.status(200).json({
@@ -155,7 +154,7 @@ export const deleteBrand = async (req, res, next) => {
   await cloudinaryConfig().api.delete_folder(brandPath);
 
   // delete the related product from db
-  const product = await Product.findAndDelete({brandId:brand._id})
+  await Product.deleteMany({brandId:brand._id})
   res.status(200).json({
     status: "success",
     message: "brand deleted successfully",
