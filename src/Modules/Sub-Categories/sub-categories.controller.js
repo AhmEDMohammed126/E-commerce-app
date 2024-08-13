@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 // utils
 import { ErrorClass, cloudinaryConfig, uploadFile } from "../../Utils/index.js";
 // models
-import { Category, SubCategory, Brand } from "../../../DB/Models/index.js";
+import { Category, SubCategory, Brand, Product } from "../../../DB/Models/index.js";
 
 /**
  * @api {POST} /sub-categories/create  create a  new subCategory category
@@ -101,9 +101,9 @@ export const updateSubCategory = async (req, res, next) => {
   // Update name and slug
   if (name) {
     const slug = slugify(name, {
-      replacement: "_",
       lower: true,
     });
+
     subCategory.name = name;
     subCategory.slug = slug;
   }
@@ -154,9 +154,8 @@ export const deleteSubCategory = async (req, res, next) => {
 
   // delete the related brands from db
   await Brand.deleteMany({ subCategoryId: subCategory._id });
-  /**
-   * @todo  delete the related products from db
-   */
+  // delete the related product from db
+  await Product.deleteMany({ subCategoryId: subCategory._id });
   res.status(200).json({
     status: "success",
     message: "SubCategory deleted successfully",

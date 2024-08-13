@@ -113,7 +113,7 @@ export const updateCategory = async (req, res, next) => {
 
   if (name) {
     const slug = slugify(name, {
-      replacement: "_",
+      replacement: "-",
       lower: true,
     });
 
@@ -142,6 +142,7 @@ export const updateCategory = async (req, res, next) => {
   });
 };
 
+
 /**
  * @api {DELETE} /categories/delete/:_id  Delete a category
  */
@@ -161,7 +162,7 @@ export const deleteCategory = async (req, res, next) => {
   await cloudinaryConfig().api.delete_resources_by_prefix(categoryPath);
   await cloudinaryConfig().api.delete_folder(categoryPath);
 
-  // delere relivant subcategories from db
+  // delete relivant subcategories from db
   const deletedSubCategories = await SubCategory.deleteMany({
     categoryId: _id,
   });
@@ -169,9 +170,9 @@ export const deleteCategory = async (req, res, next) => {
   if (deletedSubCategories.deletedCount) {
     // delete the relivant brands from db
     await Brand.deleteMany({ categoryId: _id });
-    /**
-     * @todo  delete the related products from db
-     */
+
+    // delete the related products from db
+    await Product.deleteMany({ categoryId: _id });
   }
 
   res.status(200).json({
@@ -180,6 +181,9 @@ export const deleteCategory = async (req, res, next) => {
   });
 };
 
+/**
+ * @api {GET} /categories/allCategoriesWithSubcatgories  Get all categories with their subcategories
+ */
 export const  allCategoriesWithSubcatgories=async(req,res,next)=>{
   const {page=1,limit=3}=req.query
   const skip=(page-1)*limit

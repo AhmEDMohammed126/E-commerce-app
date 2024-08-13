@@ -9,7 +9,7 @@ import { Brand } from "../../../DB/Models/index.js";
 
 const productRouter = Router({mergeParams: true});
 
-const { errorHandler, multerHost,checkIfIdsExist,getDocumentById } = Middlewares;
+const { errorHandler, multerHost,checkIfIdsExist } = Middlewares;
 
 productRouter.post(
     "/add",

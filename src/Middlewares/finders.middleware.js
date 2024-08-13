@@ -45,7 +45,6 @@ export const checkIfIdsExist = (model) => {
 // find Document With _id
 export const getDocumentById = (model) => {
   return async (req, res, next) => {
-   // const { _id } = req.params;
     const document = await model.findById(req.params._id);
     if (!document) {
       return next(
@@ -56,7 +55,7 @@ export const getDocumentById = (model) => {
         )
       );
     }
-    req.document = document;
+    req.documentById = document;
     next();
   };
 };
