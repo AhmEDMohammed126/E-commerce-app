@@ -1,3 +1,4 @@
+import slugify from "slugify";
 import mongoose from "../global-setup.js";
 const { Schema, model } = mongoose;
 
@@ -13,6 +14,9 @@ const brandSchema = new Schema(
       type: String,
       required: true,
       unique: true,
+      default: function () {
+        return slugify(this.name,{lower:true});
+    }
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

@@ -25,11 +25,6 @@ export const createBrand = async (req, res, next) => {
 
   // Generating brand slug
   const { name } = req.body;
-  const slug = slugify(name, {
-    replacement: "_",
-    lower: true,
-  });
-
   // Image
   if (!req.file) {
     return next(
@@ -46,7 +41,6 @@ export const createBrand = async (req, res, next) => {
   // prepare brand object
   const brand = {
     name,
-    slug,
     logo: {
       secure_url,
       public_id,

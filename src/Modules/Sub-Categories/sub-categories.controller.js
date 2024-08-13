@@ -17,14 +17,7 @@ export const createSubCategory = async (req, res, next) => {
     );
   }
 
-  // Generating category slug
   const { name } = req.body;
-
-  const slug = slugify(name, {
-    replacement: "_",
-    lower: true,
-  });
-
   // Image
   if (!req.file) {
     return next(
@@ -40,7 +33,6 @@ export const createSubCategory = async (req, res, next) => {
   // prepare category object
   const subCategory = {
     name,
-    slug,
     Images: {
       secure_url,
       public_id,
