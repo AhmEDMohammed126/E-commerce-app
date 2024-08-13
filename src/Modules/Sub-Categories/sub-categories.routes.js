@@ -13,8 +13,8 @@ const { errorHandler, getDocumentByName, multerHost } = Middlewares;
 
 subCategoryRouter.post(
   "/create",
-  multerHost({ allowedExtensions: extensions.Images }).single("image"),
-  getDocumentByName(SubCategory),
+  errorHandler(multerHost({ allowedExtensions: extensions.Images }).single("image")),
+  errorHandler(getDocumentByName(SubCategory)),
   errorHandler(controller.createSubCategory)
 );
 
@@ -24,8 +24,8 @@ subCategoryRouter.get("/", errorHandler(controller.allSubCategories));
 
 subCategoryRouter.put(
   "/update/:_id",
-  multerHost({ allowedExtensions: extensions.Images }).single("image"),
-  getDocumentByName(SubCategory),
+  errorHandler(multerHost({ allowedExtensions: extensions.Images }).single("image")),
+  errorHandler(getDocumentByName(SubCategory)),
   errorHandler(controller.updateSubCategory)
 );
 

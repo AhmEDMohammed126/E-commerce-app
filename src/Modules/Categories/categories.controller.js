@@ -13,12 +13,6 @@ export const createCategory = async (req, res, next) => {
   // destructuring the request body
   const { name } = req.body;
 
-  // Generating category slug
-  const slug = slugify(name, {
-    replacement: "_",
-    lower: true,
-  });
-
   // Image
   if (!req.file) {
     return next(
@@ -36,7 +30,6 @@ export const createCategory = async (req, res, next) => {
   // prepare category object
   const category = {
     name,
-    slug,
     Images: {
       secure_url,
       public_id,

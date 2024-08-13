@@ -16,8 +16,8 @@ const categoryRouter = Router();
 // routes
 categoryRouter.post(
   "/create",
-  multerHost({ allowedExtensions: extensions.Images }).single("image"),
-  getDocumentByName(Category),
+  errorHandler(multerHost({ allowedExtensions: extensions.Images }).single("image")),
+  errorHandler(getDocumentByName(Category)),
   errorHandler(controller.createCategory)
 );
 
@@ -29,8 +29,8 @@ categoryRouter.get("/allCategoriesWithSubcatgories", errorHandler(controller.all
 
 categoryRouter.put(
   "/update/:_id",
-  multerHost({ allowedExtensions: extensions.Images }).single("image"),
-  getDocumentByName(Category),
+  errorHandler(multerHost({ allowedExtensions: extensions.Images }).single("image")),
+  errorHandler(getDocumentByName(Category)),
   errorHandler(controller.updateCategory)
 );
 

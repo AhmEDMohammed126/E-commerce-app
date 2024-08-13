@@ -9,9 +9,9 @@ export const getDocumentByName = (model) => {
       if (document) {
         return next(
           new ErrorClass(
-            `${model.modelName} Document not found`,
+            `${model.modelName} name is exist`,
             404,
-            `${model.modelName} Document not found`
+            `${model.modelName} name is exist`
           )
         );
       }
