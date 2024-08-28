@@ -76,7 +76,7 @@ export const updateProduct=async(req,res,next)=>{
     populate([{path:'categoryId',select:'customId'},{path:'subCategoryId',select:'customId'},{path:'brandId',select:'customId'}]);
     if(!product) return next(new ErrorClass('Product not found',404,'Product not found'))
     //destructing the request body
-    const{title,overview,specs,price,discountAmount,discountType,stock,badge}=req.body
+    const{title,overview,specs,price,discountAmount,discountType,stock,badge,public_id}=req.body
     if(title){
         product.title=title;
         product.slug=slugify(title,{lower:true});
@@ -97,7 +97,23 @@ export const updateProduct=async(req,res,next)=>{
         product.price=newPrice
     }
 
-    if(req.files.length){
+    if(public_id&&req.files.length){
+        const splitedPublicId = public_id.split(`${product.Images.customId}/`)[1];
+        const { secure_url } = await uploadFile({
+            file: req.files[0].path,
+            folder: `${process.env.UPLOADS_FOLDER}/Categories/${product.categoryId.customId}/SubCategories/${product.subCategoryId.customId}/Brands/${product.brandId.customId}/Products/${product.Images.customId}`,
+            publicId: splitedPublicId,
+        });
+        product.Images.URLs.forEach((url)=>{
+            if(url.public_id===public_id){
+                url.secure_url=secure_url
+            }
+        })
+        if(product.Images.URLs.length==1){
+            product.Images.URLs[0].secure_url=secure_url    
+        }
+    }
+    else if(req.files.length){
         const folder =`${process.env.UPLOADS_FOLDER}/Categories/${product.categoryId.customId}/SubCategories/${product.subCategoryId.customId}/Brands/${product.brandId.customId}/Products/${product.Images.customId}`;
         const URLs=[]
         for (const file of req.files) {

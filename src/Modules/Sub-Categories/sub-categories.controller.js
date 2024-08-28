@@ -152,10 +152,10 @@ export const deleteSubCategory = async (req, res, next) => {
   await cloudinaryConfig().api.delete_resources_by_prefix(subcategoryPath);
   await cloudinaryConfig().api.delete_folder(subcategoryPath);
 
-  // delete the related brands from db
-  await Brand.deleteMany({ subCategoryId: subCategory._id });
-  // delete the related product from db
-  await Product.deleteMany({ subCategoryId: subCategory._id });
+  // // delete the related brands from db
+  // await Brand.deleteMany({ subCategoryId: subCategory._id });
+  // // delete the related product from db
+  // await Product.deleteMany({ subCategoryId: subCategory._id });
   res.status(200).json({
     status: "success",
     message: "SubCategory deleted successfully",

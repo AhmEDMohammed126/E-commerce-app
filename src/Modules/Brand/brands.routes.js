@@ -11,7 +11,6 @@ const brandRouter = Router();
 const { errorHandler, multerHost } = Middlewares;
 
 brandRouter.use("/:brandId/products",productRouter)
-
 brandRouter.post(
   "/create",
   multerHost({ allowedExtensions: extensions.Images }).single("image"),
