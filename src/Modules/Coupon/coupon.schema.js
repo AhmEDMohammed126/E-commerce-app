@@ -56,15 +56,15 @@ export const updateCouponSchema={
         }).optional(),
         couponType:joi.string().valid(...Object.values(DiscountType)).optional(),
         couponAmount:joi.number()
-        // .when("couponType",{//this validation not work when you not send the couponType
-        //     is:joi.string().valid(DiscountType.PERCENTAGE),
-        //     then:joi.number().max(100).optional()
-        // })
+        .when("couponType",{//this validation not work when you not send the couponType
+            is:joi.string().valid(DiscountType.PERCENTAGE),
+            then:joi.number().max(100).optional()
+        })
         .min(1).optional().messages({
-            // "number.max":"Coupon amount should be less than 100",
+            "number.max":"Coupon amount should be less than 100",
             "number.min":"Coupon amount should be greater than 0"
         })
-    }),
+    }).with('from','till'),
     headers:joi.object({
         token:joi.string().required(),
         ...generalRules.headers,
@@ -82,14 +82,4 @@ export const disableEnableCouponSchema={
         token:joi.string().required(),
         ...generalRules.headers,
     })   
-}
-
-export const deleteCouponSchema={
-    params:joi.object({
-        couponId:generalRules._id.required()
-    }),
-    headers:joi.object({
-        token:joi.string().required(),
-        ...generalRules.headers,
-    })  
 }

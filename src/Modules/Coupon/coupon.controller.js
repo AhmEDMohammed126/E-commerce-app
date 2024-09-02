@@ -99,10 +99,8 @@ if(couponType){
     couponExist.couponType=couponType;
 }
 if(couponAmount){
-    if(type===DiscountType.PERCENTAGE){
-        if(couponAmount>100){
-            return next(new ErrorClass("Invalid coupon amount",400,"coupon amount should be less than 100"))
-        }
+    if(type===DiscountType.PERCENTAGE && couponAmount>100){
+        return next(new ErrorClass("Invalid coupon amount",400,"coupon amount should be less than 100"))
     }
     logUpdateObject.changes.couponAmount=couponAmount;
     couponExist.couponAmount=couponAmount;
@@ -118,8 +116,8 @@ if(Users){
 }
 
 /**
- * @api {patch} /disableEnableCoupon/:couponId Disable or Enable Coupon
- */
+* @api {patch} /disableEnableCoupon/:couponId Disable or Enable Coupon it work like delete too 
+*/
 export const disableEnableCoupon=async (req,res,next)=>{
     const {couponId}=req.params;
     const userId = req.authUser._id;
@@ -134,6 +132,7 @@ export const disableEnableCoupon=async (req,res,next)=>{
         coupon.isEnabled=true;
     }
     if(enable === false){
+        logUpdateObject.action="DELETE";
         logUpdateObject.changes.isEnabled=false;
         coupon.isEnabled=false;
     }
@@ -141,30 +140,3 @@ export const disableEnableCoupon=async (req,res,next)=>{
     const newCouponChangeLog=await new CouponChangeLog(logUpdateObject).save();
     res.status(200).json({message:"coupon updated",coupon:coupon});
 }
-/** 
-* @api {delete} /deleteCoupon/:couponId delete coupon
-*/
-export const deleteCoupon = async (req,res,next)=>{
-    const {couponId} = req.params;
-    const userId = req.authUser._id;
-    const coupon=await Coupon.findByIdAndDelete(couponId);
-    if(!coupon){
-        return next(new ErrorClass("Coupon not found",404,"Coupon not found"))
-    }
-    await new CouponChangeLog({
-        couponId:couponId,
-        updatedBy:userId,
-        action:"DELETE",
-        changes:coupon  
-    }).save();
-    
-    res.status(200).json({message:"coupon deleted",coupon:coupon});
-}
-
-/**
-* @api {post} /coupons/apply apply coupon
-*/
-
-/**
-* @todo Add apply coupon API after creating Order
-*/

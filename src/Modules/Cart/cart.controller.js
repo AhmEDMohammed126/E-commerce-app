@@ -22,7 +22,7 @@ export const add =async (req, res,next) =>{
                     price:product.appliedPrice
                 }
             ],
-            subTotal
+            
         });
         await cartInstance.save();
         return res.status(201).json({cart:cartInstance});

@@ -3,7 +3,7 @@ import { Router } from "express";
 import * as controller from "./coupon.controller.js";
 
 import * as middlewares from "../../Middlewares/index.js"
-import { couponSchema, deleteCouponSchema, disableEnableCouponSchema, getAllCouponsSchema, getCouponSchema, updateCouponSchema } from "./coupon.schema.js";
+import { couponSchema, disableEnableCouponSchema, getAllCouponsSchema, getCouponSchema, updateCouponSchema } from "./coupon.schema.js";
 import { systemRoles } from "../../Utils/index.js";
 
 const couponRouter = Router();
@@ -44,10 +44,5 @@ couponRouter.patch("/disableEnableCoupon/:couponId",
     errorHandler(validationMiddleware(disableEnableCouponSchema)),
     errorHandler(controller.disableEnableCoupon)
 )
-couponRouter.delete("/deleteCoupon/:couponId",
-    errorHandler(auth()),
-    errorHandler(authorizationMiddleware(systemRoles.ADMIN)),
-    errorHandler(validationMiddleware(deleteCouponSchema)),
-    errorHandler(controller.deleteCoupon)
-)
+
 export { couponRouter };

@@ -21,6 +21,7 @@ app.use("/users", router.userRouter);
 app.use("/addresses", router.addressRouter);
 app.use("/carts", router.cartRouter);
 app.use("/coupons", router.couponRouter);
+app.use("/orders", router.orderRouter);
 app.use(globaleResponse);
 
 db_connection();
