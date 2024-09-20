@@ -26,3 +26,9 @@ export const Badges = {
       DROPPED: "dropped",
       OnWAY: "onway"
     }
+
+    export const ReviewStatus = {
+        PENDING: "pending",
+        APPROVED: "approved",
+        REJECTED: "rejected",
+    }

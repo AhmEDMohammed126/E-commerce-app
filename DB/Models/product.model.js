@@ -102,5 +102,15 @@ const productSchema = new Schema({
         required: false,
     },
 },
-{timeseries:true})
+{timeseries:true,toJSON:{virtuals:true},toObject:{virtuals:true}});
+
+//create virtual populate
+productSchema.virtual('Reviews',
+    {
+        ref:'Review',
+        localField:'_id',
+        foreignField:'productId'
+    }
+
+)
 export const Product =mongoose.models.Product || model("Product", productSchema);

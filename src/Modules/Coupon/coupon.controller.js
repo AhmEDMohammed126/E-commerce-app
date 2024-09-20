@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import { Coupon, CouponChangeLog, User } from "../../../DB/Models/index.js"
 import { DiscountType, ErrorClass } from "../../Utils/index.js";
 /**
@@ -93,11 +94,12 @@ if(till){
     logUpdateObject.changes.till=till;
     couponExist.till=till;
 }
-let type=couponExist.couponType;
+
 if(couponType){
     logUpdateObject.changes.couponType=couponType;
     couponExist.couponType=couponType;
 }
+let type=couponExist.couponType;
 if(couponAmount){
     if(type===DiscountType.PERCENTAGE && couponAmount>100){
         return next(new ErrorClass("Invalid coupon amount",400,"coupon amount should be less than 100"))

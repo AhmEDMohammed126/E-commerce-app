@@ -86,13 +86,15 @@ export const orderSchema = new Schema({
     deliveredAt:Date,
     cancelledAt:Date,
     refundedAt:Date,
+    //this for payment data  
+    payment_intent:String,
 },{timestamps:true});
 
 orderSchema.post("save",async function(){
     if(this.orderStatus===OrdeStatus.CANCELLED){
         //increment the stock of products
         for(const product of this.products){
-            await Product.updateOne({_id: product._id},{$inc:{stock:product.quantity} });
+            await Product.updateOne({_id: product.productId},{$inc:{stock:product.quantity} });
         }
         //decrement the usageCount of coupon
         if(this.couponId){
@@ -103,7 +105,7 @@ orderSchema.post("save",async function(){
     }else{
     //decrement the stock of products
     for(const product of this.products){
-        await Product.updateOne({_id: product._id},{$inc:{stock:-product.quantity} });
+        await Product.updateOne({_id: product.productId},{$inc:{stock:-product.quantity} });
     }
     //increment the usageCount of coupon
     if(this.couponId){

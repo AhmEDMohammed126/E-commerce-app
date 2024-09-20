@@ -24,7 +24,6 @@ export const validateCoupon=async(couponCode,userId,orderAmount)=>{
     }
     //check if user not eligible to use coupon
     const isUserNotEligible =coupon.Users.find(u=>u.userId.toString()!==userId.toString()||(u.userId.toString()===userId.toString()&&u.maxCount <= u.usageCount));
-     //coupon.Users.some(u=>u.userId.toString()!==userId.toString()||(u.userId.toString()===userId.toString()&&u.maxCount <= u.usageCount));
     
     if(!isUserNotEligible){
         return {message:"User not eligible to use this coupon or coupon limit reached",error:true,coupon:null}

@@ -1,8 +1,9 @@
 import { Brand, Product } from "../../../DB/Models/index.js";
-import { calculateProductPrice, cloudinaryConfig, ErrorClass, uploadFile } from "../../Utils/index.js";
+import { calculateProductPrice, cloudinaryConfig, ErrorClass, ReviewStatus, uploadFile } from "../../Utils/index.js";
 import slugify from "slugify";
 import { nanoid } from "nanoid";
 import { ApiFeatures } from "../../Utils/index.js";
+import { getSocket } from "../../Utils/socket.io.utils.js";
 
 /**
  * @api {post} /products/create
@@ -50,6 +51,9 @@ export const addProduct=async(req,res,next)=>{
         brandId:brand._id
     })
     await product.save()
+
+    //socket event to notify all clients about new product
+    getSocket().emit('newProduct',{message:'New product added'})
     return res.status(201).json({message:"Product added successfully"})
 }
 
@@ -137,7 +141,13 @@ export const listProducts=async(req,res,next)=>{
     const{brandId}=req.params;
     if(brandId) req.query.brandId=brandId;
     const model = Product
-    const ApiFeaturesInstance = new ApiFeatures(model,req.query).
+    const ApiFeaturesInstance = new ApiFeatures(model,req.query,[
+        {
+            path:"Reviews",
+            match:{reviewStatus:ReviewStatus.APPROVED},
+            select:"-_id -reviewStatus -__v -actionDoneBy"
+        }
+    ]).
     pagination()
     .filter()
     .sort();
@@ -150,7 +160,11 @@ export const listProducts=async(req,res,next)=>{
 */
 export const getProductById=async(req,res,next)=>{
     const {productId}=req.params
-    const product=await Product.findById(productId)
+    const product=await Product.findById(productId).populate(
+        {   path:"Reviews",
+            match:{reviewStatus:ReviewStatus.APPROVED},
+            select:"-_id -reviewStatus -__v -actionDoneBy"
+        })
     if(!product) return next(new ErrorClass('Product not found',404,'Product not found'))
     return res.status(200).json({product})
 }

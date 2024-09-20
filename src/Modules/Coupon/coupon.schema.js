@@ -56,12 +56,13 @@ export const updateCouponSchema={
         }).optional(),
         couponType:joi.string().valid(...Object.values(DiscountType)).optional(),
         couponAmount:joi.number()
-        .when("couponType",{//this validation not work when you not send the couponType
-            is:joi.string().valid(DiscountType.PERCENTAGE),
-            then:joi.number().max(100).optional()
-        })
-        .min(1).optional().messages({
-            "number.max":"Coupon amount should be less than 100",
+        // .when("couponType",{//this validation not work when you not send the couponType
+        //     is:joi.string().valid(DiscountType.PERCENTAGE),
+        //     then:joi.number().max(100).optional()
+        // })
+        .min(1).optional()
+        .messages({
+            // "number.max":"Coupon amount should be less than 100",
             "number.min":"Coupon amount should be greater than 0"
         })
     }).with('from','till'),

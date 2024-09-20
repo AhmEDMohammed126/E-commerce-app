@@ -4,48 +4,49 @@ import * as controller from "./order.controller.js";
 
 import * as middlewares from "../../Middlewares/index.js"
 
-import { systemRoles } from "../../Utils/index.js";
+import { cancelOrderSchema, deliverOrderSchema, getOrderSchema, orderSchema } from "./order.schema.js";
 
 const orderRouter = Router();
 
-const {errorHandler,auth,validationMiddleware,authorizationMiddleware}=middlewares;
+const {errorHandler,auth,validationMiddleware}=middlewares;
 
 orderRouter.post("/create",
     errorHandler(auth()),
+    errorHandler(validationMiddleware(orderSchema)),
     errorHandler(controller.createOrder)
 );
+orderRouter.post("/cancel/:orderId",
+    errorHandler(auth()),
+    errorHandler(validationMiddleware(cancelOrderSchema)),
+    errorHandler(controller.cancelOrder)
+);
 
-// couponRouter.get("/",
-//     errorHandler(auth()),
-//     errorHandler(authorizationMiddleware(systemRoles.ADMIN)),
-//     errorHandler(validationMiddleware(getAllCouponsSchema)),
-//     errorHandler(controller.getAllCoupons)
-// )
+orderRouter.patch("/deliverd/:orderId",
+    errorHandler(auth()),
+    errorHandler(validationMiddleware(deliverOrderSchema)),
+    errorHandler(controller.deliverOrder)
+);
 
-// couponRouter.get("/couponById/:couponId",
-//     errorHandler(auth()),
-//     errorHandler(authorizationMiddleware(systemRoles.ADMIN)),
-//     errorHandler(validationMiddleware(getCouponSchema)),
-//     errorHandler(controller.getCouponById)
-// )
+orderRouter.get("/listOrders",
+    errorHandler(auth()),
+    errorHandler(controller.listOrders)
+);
 
-// couponRouter.put("/updateCoupon/:couponId",
-//     errorHandler(auth()),
-//     errorHandler(authorizationMiddleware(systemRoles.ADMIN)),
-//     errorHandler(validationMiddleware(updateCouponSchema)),
-//     errorHandler(controller.updateCoupon)
-// )
+orderRouter.get("/getOrder/:orderId",
+    errorHandler(auth()),
+    errorHandler(validationMiddleware(getOrderSchema)),
+    errorHandler(controller.getOrder)
+);
 
-// couponRouter.patch("/disableEnableCoupon/:couponId",
-//     errorHandler(auth()),
-//     errorHandler(authorizationMiddleware(systemRoles.ADMIN)),
-//     errorHandler(validationMiddleware(disableEnableCouponSchema)),
-//     errorHandler(controller.disableEnableCoupon)
-// )
-// couponRouter.delete("/deleteCoupon/:couponId",
-//     errorHandler(auth()),
-//     errorHandler(authorizationMiddleware(systemRoles.ADMIN)),
-//     errorHandler(validationMiddleware(deleteCouponSchema)),
-//     errorHandler(controller.deleteCoupon)
-//)
+orderRouter.post("/stripePay/:orderId",
+    auth(),
+    errorHandler(controller.paymentWithStripe)
+)
+orderRouter.post("/webhook",
+    errorHandler(controller.stripeWebHookLocal)
+);
+orderRouter.post("/refund/:orderId",
+    errorHandler(auth()),
+    errorHandler(controller.refundPayment)
+)
 export { orderRouter };
