@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
 import otpGenerator from "otp-generator";
 import { cloudinaryConfig, ErrorClass, uploadFile } from "../../Utils/index.js";
+import {OAuth2Client} from "google-auth-library";
 /**
  * @api {post} /users/register  Register a new user
  */
@@ -385,4 +386,88 @@ export const deleteUser = async (req, res, next) => {
     await cloudinaryConfig().api.delete_folder(userPath);
     await Address.deleteMany({userId:_id});
     return res.status(200).json({message:"user deleted"});
+}
+
+/**
+ * @api {post} /users/loginWithGoogle  login with google
+ */
+
+export const loginWithGoogle= async (req,res,next)=>{
+    const {idToken}=req.body;
+    const client = new OAuth2Client();
+async function verify() {
+    const ticket = await client.verifyIdToken({
+        idToken,
+        audience:process.env.CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+      // Or, if multiple clients access the backend:
+      //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+    });
+    const payload = ticket.getPayload();
+    return payload;
+}
+
+const result=await verify().catch(console.error);
+if(!result.email_verified){
+    return next(
+        new ErrorClass("email not verified", 400, "email not verified")
+    );
+}
+//verify user in db
+const user=await User.findOne({email:result.email,isMarkedAsDeleted:false,provider:"google"});
+if(!user){
+    return next(
+        new ErrorClass("invalid credentials", 400, "user not found")
+    );
+}
+// generate the access token
+const token = jwt.sign({ userId: user._id,email:result.email },process.env.LOGIN_SECRET,{expiresIn: "1d"});
+user.isLogedIn = true;
+user.status = true;
+await user.save();
+res.status(200).json({message:"login with google success",token})
+}
+
+/**
+ * @api {post} /users/registerWithGoogle  register with google
+ */
+
+export const registerWithGoogle= async (req,res,next)=>{
+    const {idToken}=req.body;
+    const client = new OAuth2Client();
+    async function verify() {
+        const ticket = await client.verifyIdToken({
+            idToken,
+            audience:process.env.CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+        // Or, if multiple clients access the backend:
+        //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+        });
+        const payload = ticket.getPayload();
+        return payload;
+    }
+
+    const result=await verify().catch(console.error);  
+    if(!result.email_verified){
+        return next(
+            new ErrorClass("email not verified", 400, "email not verified")
+        );
+    }
+    // check if the email is already registered
+    const existingUser=await User.findOne({email:result.email,isMarkedAsDeleted:false})
+    if(existingUser)
+        return next(
+            new ErrorClass("Invalid credentials", 400, "Email or User name is already registered")
+        );
+    
+    const userInstance=new User({
+        userName:result.name,
+        email:result.email,
+        password:nanoid(8),
+        userType:"Buyer",
+        gender:"male",
+        age:20,
+        phone:"01024333443",
+        provider:"google"
+    })
+    await userInstance.save();
+    res.status(201).json({message:"User created successfully",data:userInstance})   
 }

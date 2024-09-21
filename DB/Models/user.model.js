@@ -68,6 +68,15 @@ const userSchema = new Schema({
         }
     },
     customId:String,
+    provider:{
+        type:String,
+        enum:['google','system'],
+        default:'system'
+    },
+    isLogedIn:{
+        type:Boolean,
+        default:false
+    }
 },{timestamps:true})
 
 //============document middleware=============

@@ -83,4 +83,14 @@ userRouter.delete(
     errorHandler(controller.deleteUser)
 );
 
+userRouter.post(
+    "/loginWithGoogle",
+    errorHandler(controller.loginWithGoogle)
+);
+
+userRouter.post(
+    "/registerWithGoogle",
+    errorHandler(controller.registerWithGoogle)
+);
+
 export {userRouter};
