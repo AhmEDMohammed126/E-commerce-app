@@ -466,6 +466,7 @@ export const registerWithGoogle= async (req,res,next)=>{
         gender:"male",
         age:20,
         phone:"01024333443",
+        isEmailVerified:true,
         provider:"google"
     })
     await userInstance.save();
