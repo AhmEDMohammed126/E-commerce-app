@@ -102,7 +102,7 @@ const productSchema = new Schema({
         required: false,
     },
 },
-{timeseries:true,toJSON:{virtuals:true},toObject:{virtuals:true}});
+{timestamps:true,toJSON:{virtuals:true},toObject:{virtuals:true}});
 
 //create virtual populate
 productSchema.virtual('Reviews',
