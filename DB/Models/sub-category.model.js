@@ -48,5 +48,12 @@ const subcategorySchema = new Schema(
   { timestamps: true }
 );
 
+subcategorySchema.post("findOneAndDelete", async function () {
+  const _id = this.getQuery()._id;
+   // delete the related brands from db
+  await mongoose.models.Brand.deleteMany({ subCategoryId:_id });
+   // delete the related product from db
+  await mongoose.models.Product.deleteMany({ subCategoryId:_id });
+})
 export const SubCategory =
   mongoose.models.SubCategory || model("SubCategory", subcategorySchema);

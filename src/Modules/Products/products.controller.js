@@ -1,8 +1,9 @@
 import { Brand, Product } from "../../../DB/Models/index.js";
-import { calculateProductPrice, cloudinaryConfig, ErrorClass, uploadFile } from "../../Utils/index.js";
+import { calculateProductPrice, cloudinaryConfig, ErrorClass, ReviewStatus, uploadFile } from "../../Utils/index.js";
 import slugify from "slugify";
 import { nanoid } from "nanoid";
 import { ApiFeatures } from "../../Utils/index.js";
+import { getSocket } from "../../Utils/socket.io.utils.js";
 
 /**
  * @api {post} /products/create
@@ -50,6 +51,9 @@ export const addProduct=async(req,res,next)=>{
         brandId:brand._id
     })
     await product.save()
+
+    //socket event to notify all clients about new product
+    getSocket().emit('newProduct',{message:'New product added'})
     return res.status(201).json({message:"Product added successfully"})
 }
 
@@ -76,7 +80,7 @@ export const updateProduct=async(req,res,next)=>{
     populate([{path:'categoryId',select:'customId'},{path:'subCategoryId',select:'customId'},{path:'brandId',select:'customId'}]);
     if(!product) return next(new ErrorClass('Product not found',404,'Product not found'))
     //destructing the request body
-    const{title,overview,specs,price,discountAmount,discountType,stock,badge}=req.body
+    const{title,overview,specs,price,discountAmount,discountType,stock,badge,public_id}=req.body
     if(title){
         product.title=title;
         product.slug=slugify(title,{lower:true});
@@ -97,7 +101,23 @@ export const updateProduct=async(req,res,next)=>{
         product.price=newPrice
     }
 
-    if(req.files.length){
+    if(public_id&&req.files.length){
+        const splitedPublicId = public_id.split(`${product.Images.customId}/`)[1];
+        const { secure_url } = await uploadFile({
+            file: req.files[0].path,
+            folder: `${process.env.UPLOADS_FOLDER}/Categories/${product.categoryId.customId}/SubCategories/${product.subCategoryId.customId}/Brands/${product.brandId.customId}/Products/${product.Images.customId}`,
+            publicId: splitedPublicId,
+        });
+        product.Images.URLs.forEach((url)=>{
+            if(url.public_id===public_id){
+                url.secure_url=secure_url
+            }
+        })
+        if(product.Images.URLs.length==1){
+            product.Images.URLs[0].secure_url=secure_url    
+        }
+    }
+    else if(req.files.length){
         const folder =`${process.env.UPLOADS_FOLDER}/Categories/${product.categoryId.customId}/SubCategories/${product.subCategoryId.customId}/Brands/${product.brandId.customId}/Products/${product.Images.customId}`;
         const URLs=[]
         for (const file of req.files) {
@@ -121,7 +141,13 @@ export const listProducts=async(req,res,next)=>{
     const{brandId}=req.params;
     if(brandId) req.query.brandId=brandId;
     const model = Product
-    const ApiFeaturesInstance = new ApiFeatures(model,req.query).
+    const ApiFeaturesInstance = new ApiFeatures(model,req.query,[
+        {
+            path:"Reviews",
+            match:{reviewStatus:ReviewStatus.APPROVED},
+            select:"-_id -reviewStatus -__v -actionDoneBy"
+        }
+    ]).
     pagination()
     .filter()
     .sort();
@@ -134,7 +160,11 @@ export const listProducts=async(req,res,next)=>{
 */
 export const getProductById=async(req,res,next)=>{
     const {productId}=req.params
-    const product=await Product.findById(productId)
+    const product=await Product.findById(productId).populate(
+        {   path:"Reviews",
+            match:{reviewStatus:ReviewStatus.APPROVED},
+            select:"-_id -reviewStatus -__v -actionDoneBy"
+        })
     if(!product) return next(new ErrorClass('Product not found',404,'Product not found'))
     return res.status(200).json({product})
 }

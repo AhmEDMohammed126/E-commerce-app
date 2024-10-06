@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
+import { ErrorClass } from "./error-class.utils.js";
 
 export const cloudinaryConfig = () => {
   // Configuration
@@ -20,9 +21,11 @@ export const cloudinaryConfig = () => {
 
 export const uploadFile = async ({ file, folder = "General", publicId }) => {
   if (!file) {
-    return next(
-      new ErrorClass("Please upload an image", 400, "Please upload an image")
-    );
+    return new ErrorClass(
+      "Please upload an image",
+      400,
+      "Please upload an image"
+    )
   }
 
   let options = { folder };
